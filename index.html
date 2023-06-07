@@ -2011,7 +2011,7 @@ const wordActions = [
       let wordAction = getRandomAction();
 
       const handleUserInput = () => {
-        const userInput = userInputElement.value.toLowerCase();
+        const userInput = userInputElement.value.toLowerCase().trim();
         if (userInput === wordPair[wordAction.answer].toLowerCase()) {
           resultElement.textContent = `Korrekt! Das richtige Wort ist "${wordPair[wordAction.answer]}" ${wordPair['english']}.`;
           resultElement.style.color = '#b3ffff';
