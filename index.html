@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word Game</title>
+<style>
+body {
+background: linear-gradient(91.1deg, rgb(57, 31, 105) -2.3%, rgb(115, 43, 155) 44.4%, rgb(231, 75, 184) 103.4%);
+text-align: center;
+}
+ #counter {
+color: white;
+}
+.container{
+padding:100px 0;
+font-family: Calibri, Arial;
+font-size: 48px;
+font-weight: bold;
+
+}
+.container #question{
+font-family: Calibri, Arial;
+font-size: 48px;
+color: white;
+}
+
+.container #question:hover{
+color: #b3ffff;
+}
+
+.container #title{
+font-size: 24px;
+font-style: italic;
+color: #b3ffff;
+}
+ #points{
+
+color: #b3ffff;
+}
+.container input, p {
+margin:0;
+font-family: Calibri, Arial;
+font-size: 32px;
+}
+.container input {
+text-align: center;
+width: 600px;
+}
+#result{
+color: #fff;
+}
+
+</style>
+
+</head>
+<body>
+  <p id="counter">2:00</p>
+   <p id="points">0 (0)</p>
+  <div class="container">
+    <p id="question"></p>
+    <p id="title"></p>
+    <input type="text" id="userInput" placeholder="Enter translation">
+  </div>
+    <p id="result"></p>
+  <script>
+    // Array of word pairs (English - German)
+    const wordPairs = [
+{
+    english: '(to begin)',
+    germanInfinitive: 'anfangen',
+    germanPraeteritum: 'fing an',
+    germanPerfect: 'angefangen',
+    germanPerfectPre: 'hat',
+    germanInfinitiveExample: "Lass uns jetzt ...!",
+    germanPraeteritumExample: "Er ... vor einer Stunde mit der Arbeit ... .",
+    germanPerfectExample: "Sie hat bereits ... und ist nun bereit, weiterzumachen."
+},
+{
+    "english": "(to answer)",
+    "germanInfinitive": "antworten",
+    "germanPraeteritum": "antwortete",
+    "germanPerfect": "geantwortet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Er muss die Frage richtig ... .",
+    "germanPraeteritumExample": "Er ... gestern auf die Frage.",
+    "germanPerfectExample": "Er hat die Frage richtig ... ."
+  },
+  {
+    "english": "(to work)",
+    "germanInfinitive": "arbeiten",
+    "germanPraeteritum": "arbeitete",
+    "germanPerfect": "gearbeitet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir müssen hart ... .",
+    "germanPraeteritumExample": "Er ... gestern sehr hart.",
+    "germanPerfectExample": "Er hat hart ... ."
+  },
+  {
+    "english": "(to annoy)",
+    "germanInfinitive": "ärgern",
+    "germanPraeteritum": "ärgerte",
+    "germanPerfect": "geärgert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie sollten ihn nicht ... .",
+    "germanPraeteritumExample": "Er ... seinen Bruder gestern.",
+    "germanPerfectExample": "Er hat seinen Bruder ... ."
+  },
+  {
+    "english": "(to clean up)",
+    "germanInfinitive": "aufräumen",
+    "germanPraeteritum": "räumte auf",
+    "germanPerfect": "aufgeräumt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir müssen das Zimmer ... .",
+    "germanPraeteritumExample": "Sie ... gestern das Zimmer ... .",
+    "germanPerfectExample": "Sie hat das Zimmer ... ."
+  },
+  {
+    "english": "(to wake up)",
+    "germanInfinitive": "aufwachen",
+    "germanPraeteritum": "wachte auf",
+    "germanPerfect": "ist aufgewacht",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Sie muss früh ... .",
+    "germanPraeteritumExample": "Er ... gestern früh ... .",
+    "germanPerfectExample": "Er ist gestern früh ... ."
+  },
+  {
+    "english": "(to look like)",
+    "germanInfinitive": "aussehen",
+    "germanPraeteritum": "sah aus",
+    "germanPerfect": "ausgesehen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wie möchtest du ... ?",
+    "germanPraeteritumExample": "Sie ... gestern sehr müde ... .",
+    "germanPerfectExample": "Sie hat gestern sehr müde ... ."
+  },
+ {
+    "english": "(to bathe)",
+    "germanInfinitive": "baden",
+    "germanPraeteritum": "badete",
+    "germanPerfect": "gebadet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich ... gerne im Meer.",
+    "germanPraeteritumExample": "Er ... gestern ausgiebig.",
+    "germanPerfectExample": "Er hat gestern ausgiebig ... ."
+  },
+  {
+    "english": "(to bake)",
+    "germanInfinitive": "backen",
+    "germanPraeteritum": "backte",
+    "germanPerfect": "gebacken",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie möchte Kekse ... .",
+    "germanPraeteritumExample": "Er ... gestern einen Kuchen.",
+    "germanPerfectExample": "Er hat einen Kuchen ... ."
+  },
+  {
+    "english": "(to build)",
+    "germanInfinitive": "bauen",
+    "germanPraeteritum": "baute",
+    "germanPerfect": "gebaut",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... ein neues Haus.",
+    "germanPraeteritumExample": "Sie ... vor vielen Jahren.",
+    "germanPerfectExample": "Sie hat vor vielen Jahren ... ."
+  },
+  {
+    "english": "(to hurry)",
+    "germanInfinitive": "beeilen",
+    "germanPraeteritum": "beeilte",
+    "germanPerfect": "beeilt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Du ... dich, sonst verpassen wir den Zug.",
+    "germanPraeteritumExample": "Er ... sich und kam rechtzeitig an.",
+    "germanPerfectExample": "Er hat sich beeilt und ist rechtzeitig angekommen."
+  },
+  {
+    "english": "(to begin)",
+    "germanInfinitive": "beginnen",
+    "germanPraeteritum": "begann",
+    "germanPerfect": "begonnen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie ... ihren Vortrag um 10 Uhr.",
+    "germanPraeteritumExample": "Er ... gestern mit dem Unterricht.",
+    "germanPerfectExample": "Er hat gestern mit dem Unterricht ... ."
+  },
+  {
+    "english": "(to get, receive)",
+    "germanInfinitive": "bekommen",
+    "germanPraeteritum": "bekam",
+    "germanPerfect": "bekommen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... eine Überraschung.",
+    "germanPraeteritumExample": "Sie ... gestern ein Geschenk.",
+    "germanPerfectExample": "Sie hat gestern ein Geschenk ... ."
+  },
+  {
+    "english": "(to order)",
+    "germanInfinitive": "bestellen",
+    "germanPraeteritum": "bestellte",
+    "germanPerfect": "bestellt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "... Sie gerne Pizza?",
+    "germanPraeteritumExample": "Er ... gestern Getränke zum Mitnehmen.",
+    "germanPerfectExample": "Er hat gestern Essen zum Mitnehmen ... ."
+  },
+   {
+    "english": "(to visit)",
+    "germanInfinitive": "besuchen",
+    "germanPraeteritum": "besuchte",
+    "germanPerfect": "besucht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte meine Großeltern ... .",
+    "germanPraeteritumExample": "Er ... letzte Woche seinen Freund.",
+    "germanPerfectExample": "Er hat letzte Woche seinen Freund ... ."
+  },
+  {
+    "english": "(to pray)",
+    "germanInfinitive": "beten",
+    "germanPraeteritum": "betete",
+    "germanPerfect": "gebetet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... gemeinsam in der Kirche.",
+    "germanPraeteritumExample": "Sie ... gestern Abend vor dem Schlafengehen.",
+    "germanPerfectExample": "Sie hat gestern Abend vor dem Schlafengehen ... ."
+  },
+  {
+    "english": "(to apply)",
+    "germanInfinitive": "bewerben",
+    "germanPraeteritum": "bewarb",
+    "germanPerfect": "beworben",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte mich für den Job ... .",
+    "germanPraeteritumExample": "Er ... sich vor zwei Wochen bei der Firma.",
+    "germanPerfectExample": "Er hat sich vor zwei Wochen bei der Firma ... ."
+  },
+  {
+    "english": "(to pay for)",
+    "germanInfinitive": "bezahlen",
+    "germanPraeteritum": "bezahlte",
+    "germanPerfect": "bezahlt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Du musst das Essen ... .",
+    "germanPraeteritumExample": "Er ... gestern die Rechnung im Restaurant.",
+    "germanPerfectExample": "Er hat gestern die Rechnung im Restaurant ... ."
+  },
+{
+    "english": "(to turn, bend)",
+    "germanInfinitive": "biegen",
+    "germanPraeteritum": "bog",
+    "germanPerfect": "gebogen",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Er muss das Metallrohr ... .",
+    "germanPraeteritumExample": "Er ... das Blatt Papier vorsichtig.",
+    "germanPerfectExample": "Das Drahtstück ist vorsichtig ... ."
+  },
+  {
+    "english": "(to offer)",
+    "germanInfinitive": "bieten",
+    "germanPraeteritum": "bot",
+    "germanPerfect": "geboten",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie ... ihm ihre Hilfe an.",
+    "germanPraeteritumExample": "Er ... ihnen ein Getränk an.",
+    "germanPerfectExample": "Er hat ihnen ein Getränk ... ."
+  },
+  {
+    "english": "(to ask for)",
+    "germanInfinitive": "bitten",
+    "germanPraeteritum": "bat",
+    "germanPerfect": "gebeten",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich werde ihn um einen Gefallen ... .",
+    "germanPraeteritumExample": "Er ... den Lehrer um eine Verlängerung der Frist.",
+    "germanPerfectExample": "Er hat den Lehrer um eine Verlängerung der Frist ... ."
+  },
+  {
+    "english": "(to stay)",
+    "germanInfinitive": "bleiben",
+    "germanPraeteritum": "blieb",
+    "germanPerfect": "ist geblieben",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Wir wollen noch ein paar Tage ... .",
+    "germanPraeteritumExample": "Er ... gestern Abend zu Hause.",
+    "germanPerfectExample": "Er ist gestern Abend zu Hause ... ."
+  },
+  {
+    "english": "(to look, glance)",
+    "germanInfinitive": "blicken",
+    "germanPraeteritum": "blickte",
+    "germanPerfect": "geblickt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie ... aus dem Fenster und sah den Sonnenuntergang.",
+    "germanPraeteritumExample": "Er ... schnell in den Raum, um nach ihr zu suchen.",
+    "germanPerfectExample": "Er hat schnell in den Raum ... ."
+  },
+  {
+    "english": "(to need, use)",
+    "germanInfinitive": "brauchen",
+    "germanPraeteritum": "brauchte",
+    "germanPerfect": "gebraucht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich ... deine Hilfe, um das Problem zu lösen.",
+    "germanPraeteritumExample": "Er ... gestern ein neues Auto.",
+    "germanPerfectExample": "Er hat gestern ein neues Auto ... ."
+  },
+  {
+    "english": "(to break)",
+    "germanInfinitive": "brechen",
+    "germanPraeteritum": "brach",
+    "germanPerfect": "gebrochen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Er hat seinen Arm beim Sturz ... .",
+    "germanPraeteritumExample": "Ich ... gestern meine Brille.",
+    "germanPerfectExample": "Ich habe gestern meine Brille ... ."
+  },
+  {
+    "english": "(to bring)",
+    "germanInfinitive": "bringen",
+    "germanPraeteritum": "brachte",
+    "germanPerfect": "gebracht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir bitte Wasser ... ?",
+    "germanPraeteritumExample": "Er ... gestern Blumen für seine Mutter.",
+    "germanPerfectExample": "Er hat gestern Blumen für seine Mutter ... ."
+  },
+  {
+    "english": "(to brush)",
+    "germanInfinitive": "bürsten",
+    "germanPraeteritum": "bürstete",
+    "germanPerfect": "gebürstet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich muss meine Haare ... .",
+    "germanPraeteritumExample": "Sie ... gestern ihren Hund.",
+    "germanPerfectExample": "Sie hat gestern ihren Hund ... ."
+  },
+  {
+    "english": "(to thank)",
+    "germanInfinitive": "danken",
+    "germanPraeteritum": "dankte",
+    "germanPerfect": "gedankt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir möchten dir für deine Hilfe ... .",
+    "germanPraeteritumExample": "Er ... gestern seinem Chef für die Beförderung.",
+    "germanPerfectExample": "Er hat gestern seinem Chef für die Beförderung ... ."
+  },
+  {
+    "english": "(to last)",
+    "germanInfinitive": "dauern",
+    "germanPraeteritum": "dauerte",
+    "germanPerfect": "gedauert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Der Film ... drei Stunden.",
+    "germanPraeteritumExample": "Es ... länger als erwartet.",
+    "germanPerfectExample": "Es hat länger als erwartet ... ."
+  },
+  {
+    "english": "(to think)",
+    "germanInfinitive": "denken",
+    "germanPraeteritum": "dachte",
+    "germanPerfect": "gedacht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Was ... du über diesen Vorschlag?",
+    "germanPraeteritumExample": "Sie ... lange über ihre Entscheidung nach.",
+    "germanPerfectExample": "Sie hat lange über ihre Entscheidung ... ."
+  },
+    {
+    "english": "(to discuss)",
+    "germanInfinitive": "diskutieren",
+    "germanPraeteritum": "diskutierte",
+    "germanPerfect": "diskutiert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir sollten über dieses Thema ... .",
+    "germanPraeteritumExample": "Sie ... gestern intensiv über die Situation.",
+    "germanPerfectExample": "Sie hat gestern intensiv über die Situation ... ."
+  },
+  {
+    "english": "(to press)",
+    "germanInfinitive": "drücken",
+    "germanPraeteritum": "drückte",
+    "germanPerfect": "gedrückt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Bitte ... Sie die Taste.",
+    "germanPraeteritumExample": "Er ... fest auf den Knopf.",
+    "germanPerfectExample": "Er hat fest auf den Knopf ... ."
+  },
+  {
+    "english": "(to shower)",
+    "germanInfinitive": "duschen",
+    "germanPraeteritum": "duschte",
+    "germanPerfect": "geduscht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte mich gerne ... .",
+    "germanPraeteritumExample": "Sie ... gestern Morgen vor der Arbeit.",
+    "germanPerfectExample": "Sie hat gestern Morgen vor der Arbeit ... ."
+  },
+  {
+    "english": "(to recommend)",
+    "germanInfinitive": "empfehlen",
+    "germanPraeteritum": "empfahl",
+    "germanPerfect": "empfohlen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir ein gutes Restaurant ... ?",
+    "germanPraeteritumExample": "Er ... mir diesen Film.",
+    "germanPerfectExample": "Er hat mir diesen Film ... ."
+  },
+  {
+    "english": "(to decide)",
+    "germanInfinitive": "entscheiden",
+    "germanPraeteritum": "entschied",
+    "germanPerfect": "entschieden",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Es ist schwer, sich zu ... .",
+    "germanPraeteritumExample": "Ich ... mich für die blauen Schuhe.",
+    "germanPerfectExample": "Ich habe mich für die blauen Schuhe ... ."
+  },
+  {
+    "english": "(to excuse oneself)",
+    "germanInfinitive": "entschuldigen",
+    "germanPraeteritum": "entschuldigte",
+    "germanPerfect": "entschuldigt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Entschuldigen Sie bitte mein Verhalten.",
+    "germanPraeteritumExample": "Er ... sich für sein verspätetes Kommen.",
+    "germanPerfectExample": "Er hat sich für sein verspätetes Kommen ... ."
+  },
+{
+    "english": "(to relax)",
+    "germanInfinitive": "entspannen",
+    "germanPraeteritum": "entspannte",
+    "germanPerfect": "entspannt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte mich gerne ... .",
+    "germanPraeteritumExample": "Er ... sich am Strand.",
+    "germanPerfectExample": "Er hat sich am Strand ... ."
+  },
+  {
+    "english": "(to remember)",
+    "germanInfinitive": "erinnern",
+    "germanPraeteritum": "erinnerte",
+    "germanPerfect": "erinnert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du dich ... ?",
+    "germanPraeteritumExample": "Sie ... sich an ihre Kindheit.",
+    "germanPerfectExample": "Sie hat sich an ihre Kindheit ... ."
+  },
+  {
+    "english": "(to catch a cold)",
+    "germanInfinitive": "erkälten",
+    "germanPraeteritum": "erkältete",
+    "germanPerfect": "erkältet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich habe mich ... .",
+    "germanPraeteritumExample": "Er ... sich letzte Woche.",
+    "germanPerfectExample": "Er hat sich letzte Woche ... ."
+  },
+  {
+    "english": "(to recognize)",
+    "germanInfinitive": "erkennen",
+    "germanPraeteritum": "erkannte",
+    "germanPerfect": "erkannt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du ihn ... ?",
+    "germanPraeteritumExample": "Sie ... ihn sofort.",
+    "germanPerfectExample": "Sie hat ihn sofort ... ."
+  },
+  {
+    "english": "(to explain)",
+    "germanInfinitive": "erklären",
+    "germanPraeteritum": "erklärte",
+    "germanPerfect": "erklärt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir das bitte ... ?",
+    "germanPraeteritumExample": "Er ... ihr die Regeln.",
+    "germanPerfectExample": "Er hat ihr die Regeln ... ."
+  },
+  {
+    "english": "(to allow, permit)",
+    "germanInfinitive": "erlauben",
+    "germanPraeteritum": "erlaubte",
+    "germanPerfect": "erlaubt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Darf ich das ... ?",
+    "germanPraeteritumExample": "Sie ... ihm, zu gehen.",
+    "germanPerfectExample": "Sie hat ihm erlaubt, zu gehen ... ."
+  },
+{
+    "english": "(to experience)",
+    "germanInfinitive": "erleben",
+    "germanPraeteritum": "erlebte",
+    "germanPerfect": "erlebt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte das gerne ... .",
+    "germanPraeteritumExample": "Er ... eine aufregende Reise.",
+    "germanPerfectExample": "Er hat eine aufregende Reise ... ."
+  },
+
+{
+  "english": "(to expect)",
+  "germanInfinitive": "erwarten",
+  "germanPraeteritum": "erwartete",
+  "germanPerfect": "erwartet",
+  "germanPerfectPre": "hat",
+  "germanInfinitiveExample": "Wir ... einen Gast zum Abendessen.",
+  "germanPraeteritumExample": "Sie ... den Anruf schon gestern.",
+  "germanPerfectExample": "Er hat die Lieferung ... ."
+},
+  {
+    "english": "(to tell about)",
+    "germanInfinitive": "erzählen",
+    "germanPraeteritum": "erzählte",
+    "germanPerfect": "erzählt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir davon ... ?",
+    "germanPraeteritumExample": "Sie ... ihm von ihrem Urlaub.",
+    "germanPerfectExample": "Sie hat ihm von ihrem Urlaub ... ."
+  },
+  {
+    "english": "(to eat)",
+    "germanInfinitive": "essen",
+    "germanPraeteritum": "aß",
+    "germanPerfect": "gegessen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte gerne ... .",
+    "germanPraeteritumExample": "Er ... gestern Abend zu Hause.",
+    "germanPerfectExample": "Er hat gestern Abend zu Hause ... ."
+  },
+  {
+    "english": "(to drive, go)",
+    "germanInfinitive": "fahren",
+    "germanPraeteritum": "fuhr",
+    "germanPerfect": "gefahren",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Kannst du mich zum Bahnhof ... ?",
+    "germanPraeteritumExample": "Sie ... mit dem Auto zur Arbeit.",
+    "germanPerfectExample": "Sie ist mit dem Auto zur Arbeit ... ."
+  },
+  {
+    "english": "(to fall)",
+    "germanInfinitive": "fallen",
+    "germanPraeteritum": "fiel",
+    "germanPerfect": "gefallen",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Pass auf, dass du nicht ... .",
+    "germanPraeteritumExample": "Er ... vom Baum.",
+    "germanPerfectExample": "Er ist vom Baum ... ."
+  },
+  {
+    "english": "(to catch)",
+    "germanInfinitive": "fangen",
+    "germanPraeteritum": "fing",
+    "germanPerfect": "gefangen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du den Ball ... ?",
+    "germanPraeteritumExample": "Sie ... den Dieb.",
+    "germanPerfectExample": "Sie hat den Dieb ... ."
+  },
+ {
+    "english": "(to be lazy)",
+    "germanInfinitive": "faulenzen",
+    "germanPraeteritum": "faulenzte",
+    "germanPerfect": "gefaulenzt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte gerne ... .",
+    "germanPraeteritumExample": "Er ... den ganzen Tag herum.",
+    "germanPerfectExample": "Er hat den ganzen Tag herum ... ."
+  },
+  {
+    "english": "(to be missing)",
+    "germanInfinitive": "fehlen",
+    "germanPraeteritum": "fehlte",
+    "germanPerfect": "gefehlt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Mir ... ein Stift.",
+    "germanPraeteritumExample": "Ihm ... etwas in der Tasche.",
+    "germanPerfectExample": "Ihm hat etwas in der Tasche ... ."
+  },
+  {
+    "english": "(to celebrate)",
+    "germanInfinitive": "feiern",
+    "germanPraeteritum": "feierte",
+    "germanPerfect": "gefeiert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir wollen heute Abend ... .",
+    "germanPraeteritumExample": "Sie ... gestern ihren Geburtstag.",
+    "germanPerfectExample": "Sie hat gestern ihren Geburtstag ... ."
+  },
+  {
+    "english": "(to find)",
+    "germanInfinitive": "finden",
+    "germanPraeteritum": "fand",
+    "germanPerfect": "gefunden",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du meinen Schlüssel ... ?",
+    "germanPraeteritumExample": "Sie ... ein interessantes Buch.",
+    "germanPerfectExample": "Sie hat ein interessantes Buch ... ."
+  },
+  {
+    "english": "(to fly)",
+    "germanInfinitive": "fliegen",
+    "germanPraeteritum": "flog",
+    "germanPerfect": "geflogen",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Wir werden morgen nach Paris ... .",
+    "germanPraeteritumExample": "Er ... in den Urlaub.",
+    "germanPerfectExample": "Er ist in den Urlaub ... ."
+  },
+  {
+    "english": "(to follow)",
+    "germanInfinitive": "folgen",
+    "germanPraeteritum": "folgte",
+    "germanPerfect": "gefolgt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir bitte ... ?",
+    "germanPraeteritumExample": "Sie ... ihrem Freund überallhin.",
+    "germanPerfectExample": "Sie hat ihrem Freund überallhin ... ."
+  },
+  {
+    "english": "(to blow dry)",
+    "germanInfinitive": "fönen",
+    "germanPraeteritum": "fönte",
+    "germanPerfect": "gefönt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du meine Haare ... ?",
+    "germanPraeteritumExample": "Sie ... ihre Haare gestern Abend.",
+    "germanPerfectExample": "Sie hat ihre Haare gestern Abend ... ."
+  },
+  {
+    "english": "(to photograph)",
+    "germanInfinitive": "fotografieren",
+    "germanPraeteritum": "fotografierte",
+    "germanPerfect": "fotografiert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du dieses Gebäude für mich ... ?",
+    "germanPraeteritumExample": "Er ... den Sonnenuntergang.",
+    "germanPerfectExample": "Er hat den Sonnenuntergang ... ."
+  },
+  {
+    "english": "(to ask)",
+    "germanInfinitive": "fragen",
+    "germanPraeteritum": "fragte",
+    "germanPerfect": "gefragt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mich etwas ... ?",
+    "germanPraeteritumExample": "Sie ... ihn nach dem Weg.",
+    "germanPerfectExample": "Sie hat ihn nach dem Weg ... ."
+  },
+  {
+    "english": "(to be happy)",
+    "germanInfinitive": "freuen",
+    "germanPraeteritum": "freute",
+    "germanPerfect": "gefreut",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich ... mich auf das Wochenende.",
+    "germanPraeteritumExample": "Er ... sich über das Geschenk.",
+    "germanPerfectExample": "Er hat sich über das Geschenk ... ."
+  },
+  {
+    "english": "(to feel)",
+    "germanInfinitive": "fühlen",
+    "germanPraeteritum": "fühlte",
+    "germanPerfect": "gefühlt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich ... mich müde.",
+    "germanPraeteritumExample": "Sie ... sich gestresst.",
+    "germanPerfectExample": "Sie hat sich gestresst ... ."
+  },
+  {
+    "english": "(to give)",
+    "germanInfinitive": "geben",
+    "germanPraeteritum": "gab",
+    "germanPerfect": "gegeben",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir bitte etwas zu trinken ... ?",
+    "germanPraeteritumExample": "Sie ... ihm ein Buch.",
+    "germanPerfectExample": "Sie hat ihm ein Buch ... ."
+  },
+  {
+    "english": "(to be pleasing, like)",
+    "germanInfinitive": "gefallen",
+    "germanPraeteritum": "gefiel",
+    "germanPerfect": "gefallen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Mir ... das Buch sehr gut.",
+    "germanPraeteritumExample": "Ihm ... das Geschenk.",
+    "germanPerfectExample": "Ihm hat das Geschenk ... ."
+  },
+  {
+    "english": "(to go)",
+    "germanInfinitive": "gehen",
+    "germanPraeteritum": "ging",
+    "germanPerfect": "gegangen",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Wir wollen spazieren ... .",
+    "germanPraeteritumExample": "Er ... gestern ins Kino.",
+    "germanPerfectExample": "Er ist gestern ins Kino ... ."
+  },
+  {
+    "english": "(to belong to)",
+    "germanInfinitive": "gehören",
+    "germanPraeteritum": "gehörte",
+    "germanPerfect": "gehört",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Die Bücher ... mir.",
+    "germanPraeteritumExample": "Die Schuhe ... meiner Schwester.",
+    "germanPerfectExample": "Die Schuhe haben meiner Schwester ... ."
+  },
+  {
+    "english": "(to win)",
+    "germanInfinitive": "gewinnen",
+    "germanPraeteritum": "gewann",
+    "germanPerfect": "gewonnen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir wollen das Spiel ... .",
+    "germanPraeteritumExample": "Sie ... den Wettkampf.",
+    "germanPerfectExample": "Sie hat den Wettkampf ... ."
+  },
+  {
+    "english": "(to believe, think)",
+    "germanInfinitive": "glauben",
+    "germanPraeteritum": "glaubte",
+    "germanPerfect": "geglaubt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... an dich.",
+    "germanPraeteritumExample": "Er ... nicht an Geister.",
+    "germanPerfectExample": "Er hat nicht an Geister ... ."
+  },
+  {
+    "english": "(to congratulate)",
+    "germanInfinitive": "gratulieren",
+    "germanPraeteritum": "gratulierte",
+    "germanPerfect": "gratuliert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir möchten dir herzlich ... .",
+    "germanPraeteritumExample": "Sie ... ihm zum Geburtstag.",
+    "germanPerfectExample": "Sie hat ihm zum Geburtstag ... ."
+  },
+  {
+    "english": "(to have)",
+    "germanInfinitive": "haben",
+    "germanPraeteritum": "hatte",
+    "germanPerfect": "gehabt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... ein Auto.",
+    "germanPraeteritumExample": "Sie ... gestern Geburtstag.",
+    "germanPerfectExample": "Sie hat gestern Geburtstag ... ."
+  },
+  {
+    "english": "(to stop, hold)",
+    "germanInfinitive": "halten",
+    "germanPraeteritum": "hielt",
+    "germanPerfect": "gehalten",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... den Bus an.",
+    "germanPraeteritumExample": "Ich ... kurz inne.",
+    "germanPerfectExample": "Ich habe kurz ... ."
+  },
+  {
+    "english": "(to deal with)",
+    "germanInfinitive": "handeln",
+    "germanPraeteritum": "handelte",
+    "germanPerfect": "gehandelt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir müssen sofort ... .",
+    "germanPraeteritumExample": "Er ... schnell und effizient.",
+    "germanPerfectExample": "Er hat schnell und effizient ... ."
+  },
+  {
+    "english": "(to hang)",
+    "germanInfinitive": "hängen",
+    "germanPraeteritum": "hing",
+    "germanPerfect": "gehangen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Die Bilder ... an der Wand.",
+    "germanPraeteritumExample": "Er ... das Schild auf.",
+    "germanPerfectExample": "Er hat das Schild ... ."
+  },
+  {
+    "english": "(to marry)",
+    "germanInfinitive": "heiraten",
+    "germanPraeteritum": "heiratete",
+    "germanPerfect": "geheiratet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie möchten ihren Partner ... .",
+    "germanPraeteritumExample": "Er ... seine langjährige Freundin.",
+    "germanPerfectExample": "Er hat seine langjährige Freundin ... ."
+  },
+  {
+    "english": "(to be called)",
+    "germanInfinitive": "heißen",
+    "germanPraeteritum": "hieß",
+    "germanPerfect": "geheißen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Das Buch ... 'Der große Gatsby'.",
+    "germanPraeteritumExample": "Er ... Peter.",
+    "germanPerfectExample": "Er hat Peter geheißen."
+  },
+ {
+    "english": "(to help)",
+    "germanInfinitive": "helfen",
+    "germanPraeteritum": "half",
+    "germanPerfect": "geholfen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir ...?",
+    "germanPraeteritumExample": "Er ... mir gestern bei den Hausaufgaben.",
+    "germanPerfectExample": "Er hat mir gestern bei den Hausaufgaben ... ."
+  },
+  {
+    "english": "(to hope)",
+    "germanInfinitive": "hoffen",
+    "germanPraeteritum": "hoffte",
+    "germanPerfect": "gehofft",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... , dass es morgen schönes Wetter gibt.",
+    "germanPraeteritumExample": "Sie ... auf eine positive Antwort.",
+    "germanPerfectExample": "Sie hat auf eine positive Antwort ... ."
+  },
+  {
+    "english": "(to fetch)",
+    "germanInfinitive": "holen",
+    "germanPraeteritum": "holte",
+    "germanPerfect": "geholt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte das Buch für mich ...?",
+    "germanPraeteritumExample": "Er ... das Paket von der Post ab.",
+    "germanPerfectExample": "Er hat das Paket von der Post ... ."
+  },
+  {
+    "english": "(to hear, listen)",
+    "germanInfinitive": "hören",
+    "germanPraeteritum": "hörte",
+    "germanPerfect": "gehört",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mich gut ...?",
+    "germanPraeteritumExample": "Ich ... gestern ein interessantes Gespräch.",
+    "germanPerfectExample": "Ich habe gestern ein interessantes Gespräch ... ."
+  },
+  {
+    "english": "(to interest)",
+    "germanInfinitive": "interessieren",
+    "germanPraeteritum": "interessierte",
+    "germanPerfect": "interessiert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Das Thema ... mich sehr.",
+    "germanPraeteritumExample": "Die Veranstaltung ... ihn nicht.",
+    "germanPerfectExample": "Die Veranstaltung hat ihn nicht ... ."
+  },
+  {
+    "english": "(to jog)",
+    "germanInfinitive": "joggen",
+    "germanPraeteritum": "joggte",
+    "germanPerfect": "ist gejoggt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Er geht regelmäßig ... .",
+    "germanPraeteritumExample": "Sie ... gestern im Park.",
+    "germanPerfectExample": "Sie ist gestern im Park ... ."
+  },
+ {
+    "english": "(to comb)",
+    "germanInfinitive": "kämmen",
+    "germanPraeteritum": "kämmte",
+    "germanPerfect": "gekämmt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich muss mir noch die Haare ... .",
+    "germanPraeteritumExample": "Sie ... ihre Haare vor dem Spiegel.",
+    "germanPerfectExample": "Sie hat ihre Haare vor dem Spiegel ... ."
+  },
+  {
+    "english": "(to buy)",
+    "germanInfinitive": "kaufen",
+    "germanPraeteritum": "kaufte",
+    "germanPerfect": "gekauft",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte Milch im Supermarkt ... ?",
+    "germanPraeteritumExample": "Er ... gestern ein neues Buch.",
+    "germanPerfectExample": "Er hat gestern ein neues Buch ... ."
+  },
+  {
+    "english": "(to know people)",
+    "germanInfinitive": "kennen",
+    "germanPraeteritum": "kannte",
+    "germanPerfect": "gekannt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... viele Leute auf der Party.",
+    "germanPraeteritumExample": "Er ... sie schon seit Jahren.",
+    "germanPerfectExample": "Er hat sie schon seit Jahren ... ."
+  },
+  {
+    "english": "(to climb)",
+    "germanInfinitive": "klettern",
+    "germanPraeteritum": "kletterte",
+    "germanPerfect": "ist geklettert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir können auf den Berg ... .",
+    "germanPraeteritumExample": "Sie ... gestern auf den Baum.",
+    "germanPerfectExample": "Sie ist gestern auf den Baum ... ."
+  },
+  {
+    "english": "(to sound)",
+    "germanInfinitive": "klingen",
+    "germanPraeteritum": "klang",
+    "germanPerfect": "geklungen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Das Lied ... sehr schön.",
+    "germanPraeteritumExample": "Die Musik ... laut und fröhlich.",
+    "germanPerfectExample": "Die Musik hat laut und fröhlich ... ."
+  },
+  {
+    "english": "(to cook)",
+    "germanInfinitive": "kochen",
+    "germanPraeteritum": "kochte",
+    "germanPerfect": "gekocht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du heute Abend das Essen ... ?",
+    "germanPraeteritumExample": "Sie ... gestern eine leckere Mahlzeit.",
+    "germanPerfectExample": "Sie hat gestern eine leckere Mahlzeit ... ."
+  },
+ {
+    "english": "(to come)",
+    "germanInfinitive": "kommen",
+    "germanPraeteritum": "kam",
+    "germanPerfect": "ist gekommen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Er wird morgen ... .",
+    "germanPraeteritumExample": "Sie ... gestern Abend.",
+    "germanPerfectExample": "Sie ist gestern Abend ... ."
+  },
+  {
+    "english": "(to concentrate)",
+    "germanInfinitive": "konzentrieren",
+    "germanPraeteritum": "konzentrierte",
+    "germanPerfect": "konzentriert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du dich bitte besser ... ?",
+    "germanPraeteritumExample": "Er ... sich auf seine Arbeit.",
+    "germanPerfectExample": "Er hat sich auf seine Arbeit ... ."
+  },
+  {
+    "english": "(to cost)",
+    "germanInfinitive": "kosten",
+    "germanPraeteritum": "kostete",
+    "germanPerfect": "gekostet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wie viel ... das T-Shirt?",
+    "germanPraeteritumExample": "Der Artikel ... 50 Euro.",
+    "germanPerfectExample": "Der Artikel hat 50 Euro ... ."
+  },
+  {
+    "english": "(to get)",
+    "germanInfinitive": "kriegen",
+    "germanPraeteritum": "kriegte",
+    "germanPerfect": "gekriegt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir muss noch meine Schlüssel ... .",
+    "germanPraeteritumExample": "Er ... gestern ein Geschenk.",
+    "germanPerfectExample": "Er hat gestern ein Geschenk ... ."
+  },
+  {
+    "english": "(to kiss)",
+    "germanInfinitive": "küssen",
+    "germanPraeteritum": "küsste",
+    "germanPerfect": "geküsst",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie möchten sich ... .",
+    "germanPraeteritumExample": "Er ... sie zur Begrüßung.",
+    "germanPerfectExample": "Er hat sie zur Begrüßung ... ."
+  },
+  {
+    "english": "(to smile)",
+    "germanInfinitive": "lächeln",
+    "germanPraeteritum": "lächelte",
+    "germanPerfect": "gelächelt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Warum ... Sie so freundlich?",
+    "germanPraeteritumExample": "Sie ... und winkte mir zu.",
+    "germanPerfectExample": "Sie hat ... und mir zugewinkt."
+  },
+{
+"english": "(to laugh)",
+"germanInfinitive": "lachen",
+"germanPraeteritum": "lachte",
+"germanPerfect": "gelacht",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir ... über seinen Witz.",
+"germanPraeteritumExample": "Sie ... laut, als sie den Witz hörte.",
+"germanPerfectExample": "Er hat den ganzen Abend ... ."
+},
+{
+"english": "(to let, leave)",
+"germanInfinitive": "lassen",
+"germanPraeteritum": "ließ",
+"germanPerfect": "gelassen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich ... dich gehen.",
+"germanPraeteritumExample": "Er ... den Hund im Park frei laufen.",
+"germanPerfectExample": "Sie hat ihn allein ... ."
+},
+{
+"english": "(to run, walk)",
+"germanInfinitive": "laufen",
+"germanPraeteritum": "lief",
+"germanPerfect": "ist gelaufen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir ... im Park.",
+"germanPraeteritumExample": "Sie ... schnell zum Bahnhof.",
+"germanPerfectExample": "Er ist den Marathon ... ."
+},
+{
+"english": "(to live)",
+"germanInfinitive": "leben",
+"germanPraeteritum": "lebte",
+"germanPerfect": "gelebt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir ... in einer kleinen Stadt.",
+"germanPraeteritumExample": "Er ... lange in diesem Haus.",
+"germanPerfectExample": "Sie hat ein erfülltes Leben ... ."
+},
+{
+"english": "(to lay/put down)",
+"germanInfinitive": "legen",
+"germanPraeteritum": "legte",
+"germanPerfect": "gelegt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Er ... das Buch auf den Tisch.",
+"germanPraeteritumExample": "Sie ... die Tasche auf den Boden.",
+"germanPerfectExample": "Ich habe meine Jacke aufs Bett ... ."
+},
+{
+"english": "(to lend/borrow)",
+"germanInfinitive": "leihen",
+"germanPraeteritum": "lieh",
+"germanPerfect": "geliehen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du mir bitte Geld ... ?",
+"germanPraeteritumExample": "Er ... mir sein Auto für das Wochenende.",
+"germanPerfectExample": "Sie hat mir ihr Buch ... ."
+},
+{
+"english": "(to lead, head)",
+"germanInfinitive": "leiten",
+"germanPraeteritum": "leitete",
+"germanPerfect": "geleitet",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Sie ... das Projekt erfolgreich.",
+"germanPraeteritumExample": "Er ... das Unternehmen viele Jahre lang.",
+"germanPerfectExample": "Die Lehrerin hat die Klasse gut ... ."
+},
+{
+"english": "(to learn, study)",
+"germanInfinitive": "lernen",
+"germanPraeteritum": "lernte",
+"germanPerfect": "gelernt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir ... Deutsch an der Universität.",
+"germanPraeteritumExample": "Sie ... fleißig für die Prüfung.",
+"germanPerfectExample": "Er hat viel in diesem Kurs ... ."
+},
+{
+"english": "(to read)",
+"germanInfinitive": "lesen",
+"germanPraeteritum": "las",
+"germanPerfect": "gelesen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Sie ... ein Buch in der Bibliothek.",
+"germanPraeteritumExample": "Er ... den Artikel in der Zeitung.",
+"germanPerfectExample": "Wir haben das Buch bereits ... ."
+},
+{
+"english": "(to love)",
+"germanInfinitive": "lieben",
+"germanPraeteritum": "liebte",
+"germanPerfect": "geliebt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir ... seine Familie sehr.",
+"germanPraeteritumExample": "Sie ... ihren Partner von ganzem Herzen.",
+"germanPerfectExample": "Ich habe diesen Ort schon immer ... ."
+},
+{
+"english": "(to lie, be lying)",
+"germanInfinitive": "liegen",
+"germanPraeteritum": "lag",
+"germanPerfect": "gelegen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Die Bücher ... auf dem Tisch.",
+"germanPraeteritumExample": "Er ... im Bett und entspannte sich.",
+"germanPerfectExample": "Die Schlüssel haben die ganze Zeit dort ... ."
+},
+{
+"english": "(to do, make)",
+"germanInfinitive": "machen",
+"germanPraeteritum": "machte",
+"germanPerfect": "gemacht",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Was möchtest du ... heute Abend?",
+"germanPraeteritumExample": "Er ... seine Hausaufgaben gestern Abend.",
+"germanPerfectExample": "Sie hat einen Kuchen für die Party ... ."
+},
+{
+"english": "(to mean, think)",
+"germanInfinitive": "meinen",
+"germanPraeteritum": "meinte",
+"germanPerfect": "gemeint",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich möchte gerne wissen, was Sie damit ... .",
+"germanPraeteritumExample": "Er ... es ernst, als er das sagte.",
+"germanPerfectExample": "Ich habe das anders ... ."
+},
+{
+"english": "(to take)",
+"germanInfinitive": "nehmen",
+"germanPraeteritum": "nahm",
+"germanPerfect": "genommen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du bitte ein Foto von uns ... ?",
+"germanPraeteritumExample": "Er ... das Buch aus dem Regal.",
+"germanPerfectExample": "Sie hat den letzten Platz im Bus ... ."
+},
+{
+"english": "(to name, call)",
+"germanInfinitive": "nennen",
+"germanPraeteritum": "nannte",
+"germanPerfect": "genannt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du den Vogel ... ?",
+"germanPraeteritumExample": "Er ... seinen Hund 'Max'.",
+"germanPerfectExample": "Sie hat das Kind 'Anna' ... ."
+},
+{
+"english": "(to open)",
+"germanInfinitive": "öffnen",
+"germanPraeteritum": "öffnete",
+"germanPerfect": "geöffnet",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du bitte das Fenster ... ?",
+"germanPraeteritumExample": "Er ... die Tür und trat ein.",
+"germanPerfectExample": "Sie hat den Briefumschlag vorsichtig ... ."
+},
+{
+"english": "(to pack)",
+"germanInfinitive": "packen",
+"germanPraeteritum": "packte",
+"germanPerfect": "gepackt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du bitte meinen Koffer ... ?",
+"germanPraeteritumExample": "Ich ... meine Sachen gestern in einen Karton.",
+"germanPerfectExample": "Hast du die Geschenke schon ... ?"
+},
+{
+"english": "(to fit, suit)",
+"germanInfinitive": "passen",
+"germanPraeteritum": "passte",
+"germanPerfect": "gepasst",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Diese Schuhe ... nicht richtig.",
+"germanPraeteritumExample": "Die Hose ... perfekt.",
+"germanPerfectExample": "Die Größe des Kleides hat mir gut ... ."
+},
+{
+"english": "(to happen)",
+"germanInfinitive": "passieren",
+"germanPraeteritum": "passierte",
+"germanPerfect": "ist passiert",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Es kann immer etwas Unvorhergesehenes ... .",
+"germanPraeteritumExample": "Letzte Woche ... ein Unfall auf der Autobahn.",
+"germanPerfectExample": "Es ist mir noch nie ... ."
+},
+{
+"english": "(to plan)",
+"germanInfinitive": "planen",
+"germanPraeteritum": "plante",
+"germanPerfect": "geplant",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir sollten unsere Reise gut ... .",
+"germanPraeteritumExample": "Ich ... eine Party für nächsten Samstag.",
+"germanPerfectExample": "Die Veranstaltung wurde lange im Voraus ... ."
+},
+{
+"english": "(to try, attempt)",
+"germanInfinitive": "probieren",
+"germanPraeteritum": "probierte",
+"germanPerfect": "probiert",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich möchte gerne das neue Restaurant ... .",
+"germanPraeteritumExample": "Sie ... verschiedene Kleider an, bevor sie sich entschied.",
+"germanPerfectExample": "Ich habe das Rezept gestern aus ... ."
+},
+{
+"english": "(to clean)",
+"germanInfinitive": "putzen",
+"germanPraeteritum": "putzte",
+"germanPerfect": "geputzt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich muss noch das Badezimmer ... .",
+"germanPraeteritumExample": "Sie ... das Auto gründlich vor der Reise.",
+"germanPerfectExample": "Der Raum wurde vor der Party gründlich ... ."
+},
+{
+"english": "(to shave)",
+"germanInfinitive": "rasieren",
+"germanPraeteritum": "rasierte",
+"germanPerfect": "rasiert",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Er muss sich jeden Morgen ... .",
+"germanPraeteritumExample": "Gestern ... er sich den Bart ab.",
+"germanPerfectExample": "Sie hat sich die Beine ... ."
+},
+{
+"english": "(to talk, converse)",
+"germanInfinitive": "reden",
+"germanPraeteritum": "redete",
+"germanPerfect": "geredet",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir können später ... .",
+"germanPraeteritumExample": "Er ... stundenlang am Telefon.",
+"germanPerfectExample": "Sie haben viel miteinander ... ."
+},
+{
+"english": "(to rain)",
+"germanInfinitive": "regnen",
+"germanPraeteritum": "regnete",
+"germanPerfect": "geregnet",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Es wird heute den ganzen Tag ... .",
+"germanPraeteritumExample": "Gestern ... es stark.",
+"germanPerfectExample": "Es hat gestern heftig ... ."
+},
+{
+"english": "(to travel)",
+"germanInfinitive": "reisen",
+"germanPraeteritum": "reiste",
+"germanPerfect": "ist gereist",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir möchten um die Welt ... .",
+"germanPraeteritumExample": "Sie ... letztes Jahr nach Italien.",
+"germanPerfectExample": "Ich bin viel ... ."
+},
+{
+"english": "(to ride)",
+"germanInfinitive": "reiten",
+"germanPraeteritum": "ritt",
+"germanPerfect": "ist geritten",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Er liebt es, Pferd zu ... .",
+"germanPraeteritumExample": "Sie ... gestern auf einem Pferd.",
+"germanPerfectExample": "Ich bin schon oft ... ."
+},
+{
+"english": "(to run, race)",
+"germanInfinitive": "rennen",
+"germanPraeteritum": "rannte",
+"germanPerfect": "ist gerannt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Sie müssen schnell ... .",
+"germanPraeteritumExample": "Ich ... so schnell wie ich konnte.",
+"germanPerfectExample": "Er ist einen Marathon ... ."
+},
+{
+"english": "(to reserve)",
+"germanInfinitive": "reservieren",
+"germanPraeteritum": "reservierte",
+"germanPerfect": "reserviert",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Wir sollten einen Tisch im Restaurant ... .",
+"germanPraeteritumExample": "Er ... einen Platz im Kino.",
+"germanPerfectExample": "Hast du schon das Hotelzimmer ... ?"
+},
+{
+"english": "(to save from)",
+"germanInfinitive": "retten",
+"germanPraeteritum": "rettete",
+"germanPerfect": "gerettet",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Die Feuerwehr konnte den Hund aus dem brennenden Haus ... .",
+"germanPraeteritumExample": "Er ... das Kind vor dem Ertrinken.",
+"germanPerfectExample": "Sie haben den Verletzten rechtzeitig ... ."
+},
+{
+"english": "(to call)",
+"germanInfinitive": "rufen",
+"germanPraeteritum": "rief",
+"germanPerfect": "gerufen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du bitte den Arzt ... ?",
+"germanPraeteritumExample": "Er ... den Namen des Gewinners.",
+"germanPerfectExample": "Ich habe dich gestern ... ."
+},
+{
+"english": "(to say)",
+"germanInfinitive": "sagen",
+"germanPraeteritum": "sagte",
+"germanPerfect": "gesagt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du mir bitte den Weg ... ?",
+"germanPraeteritumExample": "Er ... mir, dass er später kommt.",
+"germanPerfectExample": "Ich habe ihm meine Meinung ... ."
+},
+{
+"english": "(to harm, hurt)",
+"germanInfinitive": "schaden",
+"germanPraeteritum": "schadete",
+"germanPerfect": "geschadet",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Du solltest niemandem ... .",
+"germanPraeteritumExample": "Die Stürme haben der Ernte ... .",
+"germanPerfectExample": "Der Unfall hat ihm schwer ... ."
+},
+{
+"english": "(to manage, do)",
+"germanInfinitive": "schaffen",
+"germanPraeteritum": "schaffte",
+"germanPerfect": "geschafft",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich werde es noch rechtzeitig ... .",
+"germanPraeteritumExample": "Sie ... es, alle Aufgaben zu erledigen.",
+"germanPerfectExample": "Du hast es endlich ... ."
+},
+{
+"english": "(to look, glance)",
+"germanInfinitive": "schauen",
+"germanPraeteritum": "schaute",
+"germanPerfect": "geschaut",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du bitte ... , ob der Bus schon da ist?",
+"germanPraeteritumExample": "Sie ... kurz aus dem Fenster.",
+"germanPerfectExample": "Er hat sich die Fotos genau ... ."
+},
+{
+"english": "(to appear)",
+"germanInfinitive": "scheinen",
+"germanPraeteritum": "schien",
+"germanPerfect": "geschienen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Die Sonne ... hell am Himmel.",
+"germanPraeteritumExample": "Es ... so, als ob es regnen würde.",
+"germanPerfectExample": "Der Stern hat hell am Nachthimmel ... ."
+},
+{
+"english": "(to give)",
+"germanInfinitive": "schenken",
+"germanPraeteritum": "schenkte",
+"germanPerfect": "geschenkt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich möchte dir etwas Besonderes ... .",
+"germanPraeteritumExample": "Er ... ihr zum Geburtstag ein Buch.",
+"germanPerfectExample": "Sie hat mir ein wertvolles Geschenk ... ."
+},
+{
+"english": "(to send)",
+"germanInfinitive": "schicken",
+"germanPraeteritum": "schickte",
+"germanPerfect": "geschickt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du mir bitte den Brief ... ?",
+"germanPraeteritumExample": "Er ... ihr eine E-Mail mit den Informationen.",
+"germanPerfectExample": "Ich habe das Paket gestern ... ."
+},
+{
+"english": "(to sleep)",
+"germanInfinitive": "schlafen",
+"germanPraeteritum": "schlief",
+"germanPerfect": "geschlafen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich bin müde. Ich möchte jetzt ... .",
+"germanPraeteritumExample": "Er ... gut in der Nacht.",
+"germanPerfectExample": "Hast du gut ... ?"
+},
+{
+"english": "(to hit)",
+"germanInfinitive": "schlagen",
+"germanPraeteritum": "schlug",
+"germanPerfect": "geschlagen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Die Boxerin trainiert hart, um ihre Gegnerin zu ... .",
+"germanPraeteritumExample": "Sie ... ihm ins Gesicht.",
+"germanPerfectExample": "Der Boxer hat seinen Gegner hart ... ."
+},
+{
+"english": "(to close)",
+"germanInfinitive": "schließen",
+"germanPraeteritum": "schloss",
+"germanPerfect": "geschlossen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Bitte ... Sie die Tür, wenn Sie gehen.",
+"germanPraeteritumExample": "Er ... das Fenster, bevor er das Haus verließ.",
+"germanPerfectExample": "Sie hat den Laden gestern Abend ... ."
+},
+{
+"english": "(to taste)",
+"germanInfinitive": "schmecken",
+"germanPraeteritum": "schmeckte",
+"germanPerfect": "geschmeckt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Probier mal diese Suppe. Wie ... sie?",
+"germanPraeteritumExample": "Die Sauce ... sehr salzig.",
+"germanPerfectExample": "Der Kuchen hat köstlich ... ."
+},
+{
+"english": "(to put on makeup)",
+"germanInfinitive": "schminken",
+"germanPraeteritum": "schminkte",
+"germanPerfect": "geschminkt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Sie ... sich für die Party.",
+"germanPraeteritumExample": "Sie ... sich schnell, bevor sie zur Arbeit ging.",
+"germanPerfectExample": "Hast du dich schon ... ?"
+},
+{
+"english": "(to cut)",
+"germanInfinitive": "schneiden",
+"germanPraeteritum": "schnitt",
+"germanPerfect": "geschnitten",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du bitte das Brot für mich ... ?",
+"germanPraeteritumExample": "Er ... ein Stück Papier mit der Schere.",
+"germanPerfectExample": "Sie hat die Haare gestern ... lassen."
+},
+{
+"english": "(to snow)",
+"germanInfinitive": "schneien",
+"germanPraeteritum": "schneite",
+"germanPerfect": "geschneit",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Es wird morgen ... .",
+"germanPraeteritumExample": "Es ... den ganzen Tag.",
+"germanPerfectExample": "Es hat schon lange nicht mehr ... ."
+},
+{
+"english": "(to write)",
+"germanInfinitive": "schreiben",
+"germanPraeteritum": "schrieb",
+"germanPerfect": "geschrieben",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Ich muss einen Brief ... .",
+"germanPraeteritumExample": "Sie ... einen Roman über ihre Reise.",
+"germanPerfectExample": "Er hat viele Gedichte ... ."
+},
+{
+"english": "(to yell)",
+"germanInfinitive": "schreien",
+"germanPraeteritum": "schrie",
+"germanPerfect": "geschrien",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Er begann zu ... .",
+"germanPraeteritumExample": "Plötzlich ... jemand laut um Hilfe.",
+"germanPerfectExample": "Sie hat vor Schmerzen laut ... ."
+},
+{
+"english": "(to swim)",
+"germanInfinitive": "schwimmen",
+"germanPraeteritum": "schwamm",
+"germanPerfect": "geschwommen",
+"germanPerfectPre": "ist",
+"germanInfinitiveExample": "Im Sommer gehe ich gerne im See ... .",
+"germanPraeteritumExample": "Er ... jeden Tag im Pool.",
+"germanPerfectExample": "Sie ist gestern im Wettkampf schnell ... ."
+},
+{
+"english": "(to see)",
+"germanInfinitive": "sehen",
+"germanPraeteritum": "sah",
+"germanPerfect": "gesehen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du mich ... ?",
+"germanPraeteritumExample": "Ich ... ihn gestern im Park.",
+"germanPerfectExample": "Hast du den Film schon ... ?"
+},
+{
+"english": "(to be)",
+"germanInfinitive": "sein",
+"germanPraeteritum": "war",
+"germanPerfect": "gewesen",
+"germanPerfectPre": "ist",
+"germanInfinitiveExample": "Wir ... gute Freunde.",
+"germanPraeteritumExample": "Sie ... gestern müde.",
+"germanPerfectExample": "Ich bin noch nie in Italien ... ."
+},
+{
+"english": "(to set down)",
+"germanInfinitive": "setzen",
+"germanPraeteritum": "setzte",
+"germanPerfect": "gesetzt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Bitte ... Sie sich hierhin.",
+"germanPraeteritumExample": "Er ... die Tasse auf den Tisch.",
+"germanPerfectExample": "Ich habe mich auf die Bank ... ."
+},
+{
+"english": "(to sing)",
+"germanInfinitive": "singen",
+"germanPraeteritum": "sang",
+"germanPerfect": "gesungen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Sie liebt es, unter der Dusche zu ... .",
+"germanPraeteritumExample": "Er ... ein wunderschönes Lied.",
+"germanPerfectExample": "Wir haben zusammen im Chor ... ."
+},
+{
+"english": "(to be sitting)",
+"germanInfinitive": "sitzen",
+"germanPraeteritum": "saß",
+"germanPerfect": "gesessen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Bitte ... Sie sich hierhin.",
+"germanPraeteritumExample": "Er ... auf dem Stuhl und wartete.",
+"germanPerfectExample": "Ich bin lange im Auto ... ."
+},
+{
+"english": "(to save)",
+"germanInfinitive": "sparen",
+"germanPraeteritum": "sparte",
+"germanPerfect": "gespart",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Es ist wichtig, Geld zu ... .",
+"germanPraeteritumExample": "Sie ... jeden Monat einen Teil ihres Gehalts.",
+"germanPerfectExample": "Wir haben viel Geld ... ."
+},
+{
+"english": "(to play)",
+"germanInfinitive": "spielen",
+"germanPraeteritum": "spielte",
+"germanPerfect": "gespielt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kinder lieben es, draußen zu ... .",
+"germanPraeteritumExample": "Er ... Fußball mit seinen Freunden.",
+"germanPerfectExample": "Sie hat Klavier ... ."
+},
+{
+"english": "(to spin)",
+"germanInfinitive": "spinnen",
+"germanPraeteritum": "spann",
+"germanPerfect": "gesponnen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Sie kann Wolle zu Garn ... .",
+"germanPraeteritumExample": "Früher ... die Frauen selbst ihre Kleidung.",
+"germanPerfectExample": "Er hat eine schöne Strickjacke ... ."
+},
+{
+"english": "(to speak)",
+"germanInfinitive": "sprechen",
+"germanPraeteritum": "sprach",
+"germanPerfect": "gesprochen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du Deutsch ... ?",
+"germanPraeteritumExample": "Er ... leise, damit er nicht gehört wird.",
+"germanPerfectExample": "Sie hat gestern mit ihm ... ."
+},
+{
+"english": "(to jump)",
+"germanInfinitive": "springen",
+"germanPraeteritum": "sprang",
+"germanPerfect": "ist gesprungen",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Die Katze konnte hoch ... .",
+"germanPraeteritumExample": "Er ... über den Zaun.",
+"germanPerfectExample": "Sie ist vom Felsen ins Wasser ... ."
+},
+{
+"english": "(to stand)",
+"germanInfinitive": "stehen",
+"germanPraeteritum": "stand",
+"germanPerfect": "gestanden",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du lange ... bleiben?",
+"germanPraeteritumExample": "Er ... auf dem Marktplatz.",
+"germanPerfectExample": "Sie hat die ganze Zeit dort ... ."
+},
+{
+"english": "(to climb)",
+"germanInfinitive": "steigen",
+"germanPraeteritum": "stieg",
+"germanPerfect": "gestiegen",
+"germanPerfectPre": "ist",
+"germanInfinitiveExample": "Wir können auf den Berg ... .",
+"germanPraeteritumExample": "Er ... die Treppe zum Dachboden hinauf.",
+"germanPerfectExample": "Sie ist schon auf den höchsten Baum ... ."
+},
+{
+"english": "(to place, put)",
+"germanInfinitive": "stellen",
+"germanPraeteritum": "stellte",
+"germanPerfect": "gestellt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Kannst du die Tasse bitte auf den Tisch ... ?",
+"germanPraeteritumExample": "Er ... die Bücher ins Regal.",
+"germanPerfectExample": "Sie hat die Blumen auf den Fenstersims ... ."
+},
+{
+"english": "(to die)",
+"germanInfinitive": "sterben",
+"germanPraeteritum": "starb",
+"germanPerfect": "gestorben",
+"germanPerfectPre": "ist",
+"germanInfinitiveExample": "Alle Menschen müssen irgendwann ... .",
+"germanPraeteritumExample": "Er ... einen schmerzvollen Tod.",
+"germanPerfectExample": "Sie ist vor zwei Jahren ... ."
+},
+{
+"english": "(to be right)",
+"germanInfinitive": "stimmen",
+"germanPraeteritum": "stimmte",
+"germanPerfect": "gestimmt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Es ist wichtig, dass alle Informationen ... .",
+"germanPraeteritumExample": "Er ... in allem überein.",
+"germanPerfectExample": "Die Informationen haben ... ."
+},
+{
+"english": "(to stretch)",
+"germanInfinitive": "strecken",
+"germanPraeteritum": "streckte",
+"germanPerfect": "gestreckt",
+"germanPerfectPre": "hat",
+"germanInfinitiveExample": "Nach dem langen Sitzen sollten Sie sich ... .",
+"germanPraeteritumExample": "Er ... seine Beine aus.",
+"germanPerfectExample": "Sie hat ihre Arme und Beine ... ."
+},
+{
+    "english": "(to study)",
+    "germanInfinitive": "studieren",
+    "germanPraeteritum": "studierte",
+    "germanPerfect": "studiert",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich muss für meine Prüfung ... .",
+    "germanPraeteritumExample": "Gestern ... ich die ganze Nacht.",
+    "germanPerfectExample": "Er hat hart ... ."
+  },
+  {
+    "english": "(to look for)",
+    "germanInfinitive": "suchen",
+    "germanPraeteritum": "suchte",
+    "germanPerfect": "gesucht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte meine Schlüssel ... ?",
+    "germanPraeteritumExample": "Sie ... überall nach ihrer Brieftasche.",
+    "germanPerfectExample": "Wir haben das ganze Haus ... ."
+  },
+  {
+    "english": "(to surf)",
+    "germanInfinitive": "surfen",
+    "germanPraeteritum": "surfte",
+    "germanPerfect": "gesurft",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Lass uns morgen am Strand ... .",
+    "germanPraeteritumExample": "Letzten Sommer ... wir in Australien.",
+    "germanPerfectExample": "Sie hat heute Morgen im Internet ... ."
+  },
+  {
+    "english": "(to dance)",
+    "germanInfinitive": "tanzen",
+    "germanPraeteritum": "tanzte",
+    "germanPerfect": "getanzt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Lass uns heute Abend ... gehen.",
+    "germanPraeteritumExample": "Gestern ... sie auf der Party.",
+    "germanPerfectExample": "Er hat mit ihr den ganzen Abend ... ."
+  },
+  {
+    "english": "(to share)",
+    "germanInfinitive": "teilen",
+    "germanPraeteritum": "teilte",
+    "germanPerfect": "geteilt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte dein Essen mit mir ... ?",
+    "germanPraeteritumExample": "Sie ... ihr Wissen mit anderen.",
+    "germanPerfectExample": "Wir haben uns die Kosten gleichmäßig ... ."
+  },
+  {
+    "english": "(to kill)",
+    "germanInfinitive": "töten",
+    "germanPraeteritum": "tötete",
+    "germanPerfect": "getötet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Der Jäger will das Wildtier ... .",
+    "germanPraeteritumExample": "Er ... aus Versehen eine Fliege.",
+    "germanPerfectExample": "Die Nachricht hat ihn innerlich ... ."
+  },
+{
+    "english": "(to wear, carry)",
+    "germanInfinitive": "tragen",
+    "germanPraeteritum": "trug",
+    "germanPerfect": "getragen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich kann eine schwere Tasche ... .",
+    "germanPraeteritumExample": "Er ... gestern Abend seinen Anzug.",
+    "germanPerfectExample": "Sie hat die Einkaufstüten die Treppe hoch ... ."
+  },
+  {
+    "english": "(to dream)",
+    "germanInfinitive": "träumen",
+    "germanPraeteritum": "träumte",
+    "germanPerfect": "geträumt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich liebe es, von fantastischen Abenteuern zu ... .",
+    "germanPraeteritumExample": "Sie ... von einer besseren Zukunft.",
+    "germanPerfectExample": "Er hat gestern Nacht seltsam ... ."
+  },
+  {
+    "english": "(to meet)",
+    "germanInfinitive": "treffen",
+    "germanPraeteritum": "traf",
+    "germanPerfect": "getroffen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir können uns morgen ... .",
+    "germanPraeteritumExample": "Sie ... sich gestern im Park.",
+    "germanPerfectExample": "Er hat seinen alten Freund nach langer Zeit wieder ... ."
+  },
+  {
+    "english": "(to separate)",
+    "germanInfinitive": "trennen",
+    "germanPraeteritum": "trennte",
+    "germanPerfect": "getrennt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir müssen den Müll ... .",
+    "germanPraeteritumExample": "Sie ... die Wäsche nach Farben.",
+    "germanPerfectExample": "Die Mauer hat die beiden Länder voneinander ... ."
+  },
+  {
+    "english": "(to step, kick)",
+    "germanInfinitive": "treten",
+    "germanPraeteritum": "trat",
+    "germanPerfect": "getreten",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Passen Sie auf, wohin Sie ... !",
+    "germanPraeteritumExample": "Er ... den Ball ins Tor.",
+    "germanPerfectExample": "Sie hat jemanden versehentlich auf den Fuß ... ."
+  },
+  {
+    "english": "(to drink)",
+    "germanInfinitive": "trinken",
+    "germanPraeteritum": "trank",
+    "germanPerfect": "getrunken",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir bitte etwas zu ... geben?",
+    "germanPraeteritumExample": "Er ... gestern Abend viel Bier.",
+    "germanPerfectExample": "Wir haben in der Bar Cocktails ... ."
+  },
+ {
+    "english": "(to dry)",
+    "germanInfinitive": "trocknen",
+    "germanPraeteritum": "trocknete",
+    "germanPerfect": "getrocknet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich werde meine Kleidung ... .",
+    "germanPraeteritumExample": "Sie ... das Geschirr nach dem Spülen.",
+    "germanPerfectExample": "Er hat sein Haar mit einem Handtuch ... ."
+  },
+  {
+    "english": "(to do)",
+    "germanInfinitive": "tun",
+    "germanPraeteritum": "tat",
+    "germanPerfect": "getan",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Was möchtest du heute ... ?",
+    "germanPraeteritumExample": "Er ... alles, um den Erfolg zu erreichen.",
+    "germanPerfectExample": "Sie hat viel für ihre Karriere ... ."
+  },
+  {
+    "english": "(to earn)",
+    "germanInfinitive": "verdienen",
+    "germanPraeteritum": "verdiente",
+    "germanPerfect": "verdient",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie ... viel Geld mit ihrem Job.",
+    "germanPraeteritumExample": "Sie ... ihren Lebensunterhalt als Künstlerin.",
+    "germanPerfectExample": "Wir haben viel durch harte Arbeit ... ."
+  },
+  {
+    "english": "(to forget)",
+    "germanInfinitive": "vergessen",
+    "germanPraeteritum": "vergaß",
+    "germanPerfect": "vergessen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich darf nicht ..., meine Hausaufgaben zu machen.",
+    "germanPraeteritumExample": "Er ... seinen Geburtstag letztes Jahr.",
+    "germanPerfectExample": "Sie hat den Termin komplett ... ."
+  },
+  {
+    "english": "(to fall in love)",
+    "germanInfinitive": "verlieben",
+    "germanPraeteritum": "verliebte",
+    "germanPerfect": "verliebt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... uns auf den ersten Blick.",
+    "germanPraeteritumExample": "Sie ... sich in den neuen Nachbarn.",
+    "germanPerfectExample": "Er hat sich unsterblich ... ."
+  },
+  {
+    "english": "(to lose)",
+    "germanInfinitive": "verlieren",
+    "germanPraeteritum": "verlor",
+    "germanPerfect": "verloren",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich möchte meine Schlüssel nicht ... .",
+    "germanPraeteritumExample": "Er ... sein Handy gestern im Park.",
+    "germanPerfectExample": "Sie hat den Wettbewerb knapp ... ."
+  },
+ {
+    "english": "(to get engaged)",
+    "germanInfinitive": "verloben",
+    "germanPraeteritum": "verlobte",
+    "germanPerfect": "verlobt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Sie haben sich gestern offiziell ... .",
+    "germanPraeteritumExample": "Er ... seine Freundin vor einem Jahr.",
+    "germanPerfectExample": "Wir haben uns vor Kurzem ... ."
+  },
+  {
+    "english": "(to understand)",
+    "germanInfinitive": "verstehen",
+    "germanPraeteritum": "verstand",
+    "germanPerfect": "verstanden",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du Deutsch gut ... ?",
+    "germanPraeteritumExample": "Er ... die Anweisungen sofort.",
+    "germanPerfectExample": "Sie hat den Text vollkommen ... ."
+  },
+  {
+    "english": "(to prepare)",
+    "germanInfinitive": "vorbereiten",
+    "germanPraeteritum": "bereitete vor",
+    "germanPerfect": "vorbereitet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir müssen uns auf das Treffen ... .",
+    "germanPraeteritumExample": "Er ... die Präsentation am Vortag ... .",
+    "germanPerfectExample": "Sie hat alles gründlich ... ."
+  },
+  {
+    "english": "(to suggest)",
+    "germanInfinitive": "vorschlagen",
+    "germanPraeteritum": "schlug vor",
+    "germanPerfect": "vorgeschlagen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir ein Restaurant ... ?",
+    "germanPraeteritumExample": "Er ... einen Ausflug zum See ... .",
+    "germanPerfectExample": "Sie hat eine gute Idee ... ."
+  },
+  {
+    "english": "(to grow)",
+    "germanInfinitive": "wachsen",
+    "germanPraeteritum": "wuchs",
+    "germanPerfect": "gewachsen",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Die Pflanzen ... schnell in diesem Klima.",
+    "germanPraeteritumExample": "Er ... innerhalb eines Jahres um fünf Zentimeter.",
+    "germanPerfectExample": "Es ist zu einer großen Größe ... ."
+  },
+  {
+    "english": "(to hike)",
+    "germanInfinitive": "wandern",
+    "germanPraeteritum": "wanderte",
+    "germanPerfect": "gewandert",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Wir sollten morgen in den Bergen ... gehen.",
+    "germanPraeteritumExample": "Sie ... den ganzen Tag in der Natur.",
+    "germanPerfectExample": "Er ist schon viele Kilometer ... ."
+  },
+ {
+    "english": "(to wait)",
+    "germanInfinitive": "warten",
+    "germanPraeteritum": "wartete",
+    "germanPerfect": "gewartet",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir müssen auf den Bus ... .",
+    "germanPraeteritumExample": "Er ... geduldig auf sie.",
+    "germanPerfectExample": "Sie hat lange ... ."
+  },
+  {
+    "english": "(to wash)",
+    "germanInfinitive": "waschen",
+    "germanPraeteritum": "wusch",
+    "germanPerfect": "gewaschen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte das Geschirr ... ?",
+    "germanPraeteritumExample": "Sie ... ihre Kleidung gestern.",
+    "germanPerfectExample": "Er hat sein Auto ... ."
+  },
+  {
+    "english": "(to cry)",
+    "germanInfinitive": "weinen",
+    "germanPraeteritum": "weinte",
+    "germanPerfect": "geweint",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Ich musste ..., als ich den traurigen Film sah.",
+    "germanPraeteritumExample": "Sie ... vor Glück.",
+    "germanPerfectExample": "Er hat aus Trauer ... ."
+  },
+  {
+    "english": "(to become)",
+    "germanInfinitive": "werden",
+    "germanPraeteritum": "wurde",
+    "germanPerfect": "geworden",
+    "germanPerfectPre": "ist",
+    "germanInfinitiveExample": "Was möchtest du später ... ?",
+    "germanPraeteritumExample": "Er ... ein berühmter Schauspieler.",
+    "germanPerfectExample": "Sie ist zu einer Lehrerin ... ."
+  },
+  {
+    "english": "(to throw)",
+    "germanInfinitive": "werfen",
+    "germanPraeteritum": "warf",
+    "germanPerfect": "geworfen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du den Ball bitte ... ?",
+    "germanPraeteritumExample": "Er ... den Stein ins Wasser.",
+    "germanPerfectExample": "Sie hat den Brief weit weg ... ."
+  },
+  {
+    "english": "(to repeat)",
+    "germanInfinitive": "wiederholen",
+    "germanPraeteritum": "wiederholte",
+    "germanPerfect": "wiederholt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du den Satz bitte ... ?",
+    "germanPraeteritumExample": "Er ... den Text mehrmals.",
+    "germanPerfectExample": "Sie hat den Vortrag bereits ... ."
+  },
+ {
+    "english": "(to know facts)",
+    "germanInfinitive": "wissen",
+    "germanPraeteritum": "wusste",
+    "germanPerfect": "gewusst",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... nicht, dass du krank warst.",
+    "germanPraeteritumExample": "Er ... die Antwort auf die Frage.",
+    "germanPerfectExample": "Sie hat viel über Geschichte ... ."
+  },
+  {
+    "english": "(to live, dwell)",
+    "germanInfinitive": "wohnen",
+    "germanPraeteritum": "wohnte",
+    "germanPerfect": "gewohnt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... in einer kleinen Wohnung.",
+    "germanPraeteritumExample": "Er ... früher auf dem Land.",
+    "germanPerfectExample": "Sie hat lange in dieser Stadt ... ."
+  },
+  {
+    "english": "(to wish)",
+    "germanInfinitive": "wünschen",
+    "germanPraeteritum": "wünschte",
+    "germanPerfect": "gewünscht",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Wir ... dir alles Gute zum Geburtstag!",
+    "germanPraeteritumExample": "Er ... sich mehr Freizeit.",
+    "germanPerfectExample": "Sie hat sich ein neues Auto ... ."
+  },
+  {
+    "english": "(to pay)",
+    "germanInfinitive": "zahlen",
+    "germanPraeteritum": "zahlte",
+    "germanPerfect": "gezahlt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte die Rechnung ... ?",
+    "germanPraeteritumExample": "Er ... den Betrag bar.",
+    "germanPerfectExample": "Sie hat die Schulden vollständig ... ."
+  },
+  {
+    "english": "(to show)",
+    "germanInfinitive": "zeigen",
+    "germanPraeteritum": "zeigte",
+    "germanPerfect": "gezeigt",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du mir den Weg ... ?",
+    "germanPraeteritumExample": "Er ... auf das Bild.",
+    "germanPerfectExample": "Sie hat mir ihre Sammlung ... ."
+  },
+  {
+    "english": "(to pull)",
+    "germanInfinitive": "ziehen",
+    "germanPraeteritum": "zog",
+    "germanPerfect": "gezogen",
+    "germanPerfectPre": "hat",
+    "germanInfinitiveExample": "Kannst du bitte an der Tür ... ?",
+    "germanPraeteritumExample": "Er ... den schweren Koffer.",
+    "germanPerfectExample": "Sie hat an der Schnur ... ."
+  }
+
+      // Add more word pairs here
+    ];
+
+const wordActions = [
+{question: "germanInfinitive", answer: "germanPraeteritum", title: "Präteritum"},
+{question: "germanInfinitive", answer: "germanPerfect", title: "Perfekt (Partizip II)"},
+{question: "germanPraeteritum", answer: "germanInfinitive", title: "Infitiv"},
+{question: "germanPerfect", answer: "germanInfinitive", title: "Infitiv"}
+];
+
+    // Get DOM elements
+    const question = document.getElementById('question');
+    const title = document.getElementById('title');
+    const userInputElement = document.getElementById('userInput');
+    const resultElement = document.getElementById('result');
+    const pointsElement = document.getElementById('points');
+    let previousResult = '';
+    let rwords = 0, points = 0;
+    // Randomly select a word pair
+    const getRandomWordPair = () => {
+      const randomIndex = Math.floor(Math.random() * wordPairs.length);
+      return wordPairs[randomIndex];
+    };
+
+    const getRandomAction = () => {
+      const randomIndex = Math.floor(Math.random() * wordActions.length);
+      return wordActions[randomIndex];
+    };
+
+    // Game logic
+    const playGame = () => {
+      let wordPair = getRandomWordPair();
+      let wordAction = getRandomAction();
+
+      const handleUserInput = () => {
+        const userInput = userInputElement.value.toLowerCase();
+        if (userInput === wordPair[wordAction.answer].toLowerCase()) {
+          resultElement.textContent = `Korrekt! Das richtige Wort ist "${wordPair[wordAction.answer]}" ${wordPair['english']}.`;
+          resultElement.style.color = '#b3ffff';
+          resultElement.style.background = 'transparent';
+          previousResult = `Korrekt! Das richtige Wort ist "${wordPair[wordAction.answer]}" ${wordPair['english']}.`;
+          points = points + 10;
+          rwords = rwords + 1;
+          pointsElement.textContent = points + " (" + rwords  + ")";
+        } else {
+          resultElement.textContent = `Falsch! Das richtige Wort ist "${wordPair[wordAction.answer]}" ${wordPair['english']}.`;
+          resultElement.style.color = '#fff';
+          resultElement.style.background = '#cc1b32';
+          previousResult = `Falsch! Das richtige Wort ist "${wordPair[wordAction.answer]}" ${wordPair['english']}.`;
+          points = points - 10;
+          pointsElement.textContent = points + " (" + rwords  + ")";
+        }
+
+        // Generate a new word pair
+        wordPair = getRandomWordPair();
+        wordAction = getRandomAction();
+        displayWordPair(wordPair, wordAction);
+      };
+
+      const displayWordPair = (pair, act) => {
+        question.textContent = pair[act.question];
+        title.textContent = act.title;
+        userInputElement.value = '';
+        let prefix = (act.answer == 'germanPerfect' ? pair['germanPerfectExample'] : (act.answer == 'germanPraeteritum' ? pair['germanPraeteritumExample'] : pair['germanInfinitiveExample'])) 
+        userInputElement.placeholder = prefix;
+
+        userInputElement.focus();
+        resultElement.textContent = previousResult;
+      };
+
+      userInputElement.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+          handleUserInput();
+        }
+      });
+
+      // Initial word pair
+      displayWordPair(wordPair, wordAction);
+    };
+
+    // Start the game
+    playGame();
+
+ // Function to start the timer
+    const startTimer = (duration, display) => {
+      let timer = duration;
+      const timerInterval = setInterval(() => {
+        const minutes = parseInt(timer / 60, 10);
+        let seconds = parseInt(timer % 60, 10);
+
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = `${minutes}:${seconds}`;
+
+        if (--timer < 0) {
+          clearInterval(timerInterval);
+          alert("Zeit ist vergangen! Gesamtpunktzahl: " + points + ". Anzahl der richtigen Wörter: " + rwords);
+        }
+      }, 1000);
+    };
+
+    // Start the timer when the page loads
+    window.onload = () => {
+      const display = document.querySelector('#counter');
+      startTimer(2 * 60, display);
+    };
+  </script>
+</body>
+</html>
